@@ -12,7 +12,7 @@ l = False
 
 def help():
     print("Write 'reg', if you want to sign up")
-    print("Write 'enter', if you want to enter to the system")
+    print("Write 'id', if you want to enter to the system")
     print("Write 'exit', if you want to close the program")
 
 def desc():
@@ -26,9 +26,10 @@ def id():
     w = False
     print("Stand opposite the camera.")
     print("When you will ready, press 'q'")
-    video_capture = cv2.VideoCapture(0)
     while (y != True):
+        video_capture = cv2.VideoCapture(0)
         while True:
+
             ret, frame = video_capture.read()
 
             cv2.imshow('Video', frame)
@@ -66,7 +67,7 @@ def id():
             while (w != True):
                 etal_pass = known_password[known_names.index(name)]
                 password = input()
-                if (etal_pass == password):
+                if (etal_pass == hash("k05m0navt" + password + str(name))):
                     w = True
                     y = True
                 else:
@@ -84,7 +85,7 @@ def id():
         else:
             print("You need to register.")
             reg()
-        print("Congratulate, you can pass!")
+    print("Congratulate, you can pass!")
 
 
 
@@ -104,8 +105,8 @@ def reg():
     img.release()
     cv2.destroyAllWindows()
 
-    face_encoding = face_recognition.face_encodings(frame)[0]
-    known_faces_encoding.append(face_encoding)
+    face_encod = face_recognition.face_encodings(frame)[0]
+    known_faces_encoding.append(face_encod)
 
     print("Please write your name:")
     name = input()
@@ -113,7 +114,11 @@ def reg():
 
     print("Please write your password:")
     passw = input()
-    known_password.append(passw)
+    h_pasw = "k05m0navt" + passw + name
+    hash_passw = hash(h_pasw)
+    known_password.append(hash_passw)
+
+    print("You can try to enter.")
 
 print("Hello!")
 print("Write, what do you want to do:")
