@@ -99,20 +99,21 @@ def GetAdres(privateKey):
 def SetTransaction(abi, byte, person):
 
 	#create transaction
-    contract = web3.eth.contract(abi=abi, bytecode=byte)
-    SignedTX = contract.constructor().buildTransaction({
-    'from': person.address,
-    'nonce': web3.eth.getTransactionCount(person.address),
-    'gasPrice': GetGas()
-    })
-    SignedTX = person.signTransaction(SignedTX)
-    RawTX = web3.eth.sendRawTransaction(SignedTX.rawTransaction)
-    TXReceipt = web3.eth.waitForTransactionReceipt(RawTX)
-
+	contract = web3.eth.contract(abi=abi, bytecode=byte)
+	SignedTX = contract.constructor().buildTransaction({
+	'from': person.address,
+	'nonce': web3.eth.getTransactionCount(person.address),
+	'gasPrice': GetGas()
+	})
+	SignedTX = person.signTransaction(SignedTX)
+	RawTX = web3.eth.sendRawTransaction(SignedTX.rawTransaction)
+	TXReceipt = web3.eth.waitForTransactionReceipt(RawTX)
 	#write transaction info
-    with open('database.json', 'w') as file:
-        file.write(json.dumps({'registrar': TXReceipt['contractAddress'], 'startBlock': TXReceipt['blockNumber']}))
-    return {'registrar': TXReceipt['contractAddress'], 'startBlock': TXReceipt['blockNumber']}
+	f = open('database.json', 'w')
+	f.close()
+	with open('database.json', 'w') as file:
+		file.write(json.dumps({'registrar': TXReceipt['contractAddress'], 'startBlock': TXReceipt['blockNumber']}))
+	return {'registrar': TXReceipt['contractAddress'], 'startBlock': TXReceipt['blockNumber']}
 
 def AddName(Caddres, abi, byte, person, name):
 	#create transaction
@@ -191,15 +192,15 @@ if(len(args) > 2):
 		args[1] = args[1] + " " + args[i]
 
 
-#Get transaction info
-with open('database.json') as file:
-    Caddres = json.load(file)['registrar']
 
 if args[0] == '--deploy':
 	TRInfo = SetTransaction(abi, byte, address)
 	print("Contract address:", TRInfo['registrar'])
     #print(TRInfo)
 
+#Get transaction info
+with open('database.json') as file:
+    Caddres = json.load(file)['registrar']
 
 if args[0] == '--add':
 	TRInfo = AddName(Caddres, abi, byte, address, args[1])
