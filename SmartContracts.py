@@ -150,10 +150,11 @@ def AddName(Caddres, abi, byte, person, name):
 	try:
 		txId = web3.eth.sendRawTransaction(signed_tx.rawTransaction)
 	except:
-		return ({'status': -1}, -1)
+		return {'status': -1}
 
 	txReceipt = web3.eth.waitForTransactionReceipt(txId)
-	return (txReceipt, result)
+	txReceipt['status'] = result
+	return txReceipt
 
 def RemoveName(person, abi):
 	#create transaction
@@ -170,10 +171,11 @@ def RemoveName(person, abi):
 	try:
 		txId = web3.eth.sendRawTransaction(signed_tx.rawTransaction)
 	except:
-		return ({'status': -1}, -1)
+		return {'status': -1}
 
 	txReceipt = web3.eth.waitForTransactionReceipt(txId)
-	return (txReceipt, result)
+	txReceipt['status'] = result
+	return txReceipt
 
 def GetName(Caddres, abi, person):
     contract_by_address = web3.eth.contract(address = Caddres, abi = abi)
@@ -225,22 +227,22 @@ with open('database.json') as file:
     Caddres = json.load(file)['registrar']
 
 if args[0] == '--add':
-	(TRInfo, result) = AddName(Caddres, abi, byte, address, args[1])
-	if(result == 0):
+	TRInfo = AddName(Caddres, abi, byte, address, args[1])
+	if(TRInfo['status'] == 0):
 		print("One account must correspond one name")
 	if(TRInfo['status'] == -1):
 		print("No enough funds to add name")
-	if(result == 1):
+	if(TRInfo['status'] == 1):
 		print("Successfully added by", (TRInfo["transactionHash"]).hex())
 	#print(TRInfo)
 
 if args[0] == '--del':
-	(TRInfo, result) = RemoveName(address, abi)
-	if(result == 0):
+	TRInfo = RemoveName(address, abi)
+	if(TRInfo['status'] == 0):
 		print("No name found for your account")
 	if(TRInfo['status'] == -1):
 		print("No enough funds to delete name")
-	if(result == 1):
+	if(TRInfo['status'] == 1):
 		print("Successfully deleted by",  TRInfo["transactionHash"].hex())
 	#print(TRInfo)
 
