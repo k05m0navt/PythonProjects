@@ -146,15 +146,18 @@ def AddName(Caddres, abi, byte, person, name):
     })
 	signed_tx = person.signTransaction(tx_wo_sign)
 	#sending transaction
-	result = contract_by_address.functions.AddName(name, person.address).call()
+	TX = {'status': 0, 'transactionHash': 0}
+	TX['status'] = int(contract_by_address.functions.AddName(name, person.address).call())
+	if TX['status'] == 0:
+		return TX
 	try:
 		txId = web3.eth.sendRawTransaction(signed_tx.rawTransaction)
 	except:
-		return {'status': -1}
+		return {'status': -1, 'transactionHash': 0}
 
 	txReceipt = web3.eth.waitForTransactionReceipt(txId)
-	txReceipt['status'] = result
-	return txReceipt
+	TX['transactionHash'] = txReceipt['transactionHash']
+	return TX
 
 def RemoveName(person, abi):
 	#create transaction
@@ -167,15 +170,16 @@ def RemoveName(person, abi):
 	})
 	signed_tx = person.signTransaction(tx_wo_sign)
 	#sending transaction
-	result = contract_by_address.functions.RemoveName(person.address).call()
+	TX = {'status': 0, 'transactionHash': 0}
+	TX['status'] = int(contract_by_address.functions.RemoveName(person.address).call())
 	try:
 		txId = web3.eth.sendRawTransaction(signed_tx.rawTransaction)
 	except:
-		return {'status': -1}
+		return {'status': -1, 'transactionHash': 0}
 
 	txReceipt = web3.eth.waitForTransactionReceipt(txId)
-	txReceipt['status'] = result
-	return txReceipt
+	TX['transactionHash'] = txReceipt['transactionHash']
+	return TX
 
 def GetName(Caddres, abi, person):
     contract_by_address = web3.eth.contract(address = Caddres, abi = abi)
@@ -198,7 +202,6 @@ def GetAcc(Caddres, abi, name):
 		if i == name:
 			list.append(RawList[i])
 	return list
-
 
 
 #Connection
@@ -224,7 +227,7 @@ if args[0] == '--deploy':
 
 #Get transaction info
 with open('database.json') as file:
-    Caddres = json.load(file)['registrar']
+	Caddres = json.load(file)['registrar']
 
 if args[0] == '--add':
 	TRInfo = AddName(Caddres, abi, byte, address, args[1])
